@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:fitapp/services/auth/register_screen.dart';
 import 'widgets/my_textfield.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -105,14 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
             const Text("Not on FitApp yet?"),
             GestureDetector(
               onTap: widget.onTap,
-              /*() {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RegisterPage(),
-                  ),
-                );
-              },*/
               child: const Text(
                 "Sign Up",
                 style: TextStyle(

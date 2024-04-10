@@ -4,7 +4,7 @@ import 'view/chat_screen.dart';
 import 'view/home_screen.dart';
 
 class Home extends StatefulWidget {
-  Home({super.key});
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -19,10 +19,8 @@ class _HomeState extends State<Home> {
   }
 
   // BOTTOM NAVIGATION BAR
-  // :selected icon
   int _currentIndex = 0;
 
-  // :method for selected icon
   void _selectScreen(int index) {
     setState(() {
       _currentIndex = index;

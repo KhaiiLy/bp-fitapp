@@ -57,12 +57,6 @@ class FirestoreDatabase {
       'sets': [],
     };
 
-    var temp = Exercise(
-      eid: eID,
-      name: exerciseName_,
-      sets: [],
-      createdAt: FieldValue.serverTimestamp(),
-    );
     try {
       db
           .collection('workouts')

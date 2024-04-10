@@ -123,9 +123,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const Text("Already have an account?"),
             GestureDetector(
               onTap: widget.onTap,
-              // onTap: () {
-              //   Navigator.pop(context);
-              // },
               child: const Text(
                 "Sing In",
                 style: TextStyle(
