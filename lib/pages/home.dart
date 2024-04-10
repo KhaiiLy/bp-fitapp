@@ -1,7 +1,27 @@
+import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../data/models/user.dart';
 import 'view/chat_screen.dart';
 import 'view/home_screen.dart';
+
+class HomeProviders extends StatelessWidget {
+  const HomeProviders({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        StreamProvider<List<User>>.value(
+            value: FirestoreDatabase().users, initialData: const []),
+        StreamProvider.value(
+            value: FirestoreDatabase().workouts, initialData: const []),
+      ],
+      child: const Home(),
+    );
+  }
+}
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,21 +33,19 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   // final currentUser = FirebaseAuth.instance.currentUser!;
 
-  // SING-OUT METHOD
   void signOut() {
     // FirebaseAuth.instance.signOut();
   }
 
   // BOTTOM NAVIGATION BAR
   int _currentIndex = 0;
-
   void _selectScreen(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
 
-  // :paging
+  // PAGING
   final List<Widget> _screens = [
     const HomeScreen(),
     const ChatScreen(),

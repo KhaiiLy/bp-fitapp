@@ -6,11 +6,9 @@ import 'package:fitapp/data/models/exercise.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
 import '../../data/models/workout.dart';
 import '../../data/models/sets.dart';
-import '../../data/chat_models/user.dart';
+import '../../data/models/user.dart';
 
 class FirestoreDatabase {
-  List subcolDocIDs = [];
-
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   /* 
@@ -18,7 +16,6 @@ class FirestoreDatabase {
     
   */
 
-  // -------- CHAT - GETTER -------------------------------
   Stream<List<User>> get users {
     Stream<List<User>> data =
         db.collection('users').snapshots().map((snap) => snap.docs.map((doc) {
@@ -149,9 +146,6 @@ class FirestoreDatabase {
         .collection('workouts')
         .snapshots()
         .map((snap) => snap.docs.map((doc) {
-              // if (!subcolDocIDs.contains(doc.id)) {
-              //   subcolDocIDs.add(doc.id);
-              // }
               return Workout.fromMap(doc.id, doc.data());
             }).toList());
     return data;

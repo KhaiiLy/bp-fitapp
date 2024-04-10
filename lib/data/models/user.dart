@@ -4,6 +4,10 @@ class User {
   final String lname;
   final String email;
 
+  // list of workout (wIDs)
+  // list of linked people (friends)
+  // list of request ?? (friend request)
+
   User(
       {required this.uid,
       required this.name,

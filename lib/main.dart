@@ -34,26 +34,26 @@ class FitApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: GoogleFonts.lato().fontFamily),
-      home: const FitAppHome(),
+      home: const AuthPage(),
       // ),
     );
   }
 }
 
-class FitAppHome extends StatelessWidget {
-  const FitAppHome({super.key});
+// class FitAppHome extends StatelessWidget {
+//   const FitAppHome({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamProvider<List<Workout>>(
-      create: (context) => FirestoreDatabase().workouts,
-      initialData: [], // Use an empty list as initialData
-      catchError: (_, error) {
-        print("error:  ${error.toString()}");
-        return []; // Return an empty list in case of an error
-      },
-      // child: Home(),
-      child: const AuthPage(),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return StreamProvider<List<Workout>>(
+//       create: (context) => FirestoreDatabase().workouts,
+//       initialData: [], // Use an empty list as initialData
+//       catchError: (_, error) {
+//         print("error:  ${error.toString()}");
+//         return []; // Return an empty list in case of an error
+//       },
+//       // child: Home(),
+//       child: const AuthPage(),
+//     );
+//   }
+// }
