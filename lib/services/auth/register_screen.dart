@@ -14,6 +14,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   // input controls
+  final nameCtrler = TextEditingController();
+  final lNameCtrler = TextEditingController();
   final emailCtrler = TextEditingController();
   final passwdCtrler = TextEditingController();
   final confirmPasswdCtrler = TextEditingController();
@@ -75,12 +77,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               height: 165,
             ),
             const SizedBox(height: 15),
+
             const Text(
               "Create an account",
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
 
             // USER INPUTS
+            MyTextField(
+                controller: nameCtrler, labelText: "Name", obscureText: false),
+            MyTextField(
+                controller: lNameCtrler,
+                labelText: "Last name",
+                obscureText: false),
             MyTextField(
                 controller: emailCtrler,
                 labelText: "Email",

@@ -3,16 +3,19 @@ class User {
   final String name;
   final String lname;
   final String email;
+  List workouts;
+  List friends;
+  List fRequests;
 
-  // list of workout (wIDs)
-  // list of linked people (friends)
-  // list of request ?? (friend request)
-
-  User(
-      {required this.uid,
-      required this.name,
-      required this.lname,
-      required this.email});
+  User({
+    required this.uid,
+    required this.name,
+    required this.lname,
+    required this.email,
+    required this.workouts,
+    required this.friends,
+    required this.fRequests,
+  });
 
   Map<String, dynamic> toMap() => {
         'uid': uid,
@@ -21,10 +24,13 @@ class User {
         'email': email,
       };
 
-  factory User.fromMap(String uid_, Map<String, dynamic> data) => User(
-        uid: uid_,
+  factory User.fromMap(Map<String, dynamic> data) => User(
+        uid: data['uid'] ?? '',
         name: data['name'] ?? '',
         lname: data['last_name'] ?? '',
         email: data['email'] ?? '',
+        workouts: data['workouts'] ?? [],
+        friends: data['friends'] ?? [],
+        fRequests: data['f_requests'] ?? [],
       );
 }

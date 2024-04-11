@@ -9,11 +9,7 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<List<User>>.value(
-      value: FirestoreDatabase().users,
-      initialData: [],
-      child: Chat(),
-    );
+    return const Text('Preparing the codes . let me cook');
   }
 }
 

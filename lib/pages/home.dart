@@ -1,8 +1,10 @@
 import 'package:fitapp/services/database/firestore_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/models/user.dart';
+import '../data/models/workout.dart';
 import 'view/chat_screen.dart';
 import 'view/home_screen.dart';
 
@@ -13,13 +15,14 @@ class HomeProviders extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        StreamProvider<List<User>>.value(
-            value: FirestoreDatabase().users, initialData: const []),
-        StreamProvider.value(
+        // StreamProvider.value(
+        //     value: FirestoreDatabase().users, initialData: const []),
+        StreamProvider<List<Workout>>.value(
             value: FirestoreDatabase().workouts, initialData: const []),
       ],
       child: const Home(),
     );
+    // );
   }
 }
 
@@ -31,7 +34,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // final currentUser = FirebaseAuth.instance.currentUser!;
+  final currentUser = FirebaseAuth.instance.currentUser?.uid;
 
   void signOut() {
     // FirebaseAuth.instance.signOut();
@@ -53,6 +56,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    print('home.dart >> $currentUser');
+
     return Scaffold(
       // appBar: AppBar(
       //   actions: [

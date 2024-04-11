@@ -16,12 +16,13 @@ class FirestoreDatabase {
     
   */
 
-  Stream<List<User>> get users {
-    Stream<List<User>> data =
-        db.collection('users').snapshots().map((snap) => snap.docs.map((doc) {
-              return User.fromMap(doc.id, doc.data());
-            }).toList());
-    return data;
+  Stream<List<User>> getUserData(String uid_) {
+    var data = db
+        .collection('users')
+        .doc(uid_)
+        .snapshots()
+        .map((snap) => User.fromMap(snap.data()!));
+    return [] as Stream<List<User>>;
   }
 
   /* 
