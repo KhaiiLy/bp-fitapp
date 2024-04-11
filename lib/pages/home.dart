@@ -1,9 +1,9 @@
+import 'package:fitapp/pages/view/profile_screen.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/models/user.dart';
 import '../data/models/workout.dart';
 import 'view/chat_screen.dart';
 import 'view/home_screen.dart';
@@ -36,10 +36,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final currentUser = FirebaseAuth.instance.currentUser?.uid;
 
-  void signOut() {
-    // FirebaseAuth.instance.signOut();
-  }
-
   // BOTTOM NAVIGATION BAR
   int _currentIndex = 0;
   void _selectScreen(int index) {
@@ -52,6 +48,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const ChatScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -59,14 +56,6 @@ class _HomeState extends State<Home> {
     print('home.dart >> $currentUser');
 
     return Scaffold(
-      // appBar: AppBar(
-      //   actions: [
-      //     IconButton(
-      //       onPressed: signOut,
-      //       icon: Icon(Icons.logout),
-      //     ),
-      //   ],
-      // ),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

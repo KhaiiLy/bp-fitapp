@@ -1,29 +1,42 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:fitapp/data/models/exercise.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
 import '../../data/models/workout.dart';
 import '../../data/models/sets.dart';
-import '../../data/models/user.dart';
+import '../../data/models/app_user.dart';
 
 class FirestoreDatabase {
   final FirebaseFirestore db = FirebaseFirestore.instance;
+
+  /*
+    USERS
+  */
+
+  Future<void> addNewRegistered(AppUser appUser) async {
+    try {
+      await db.collection('users').doc(appUser.uid).set(appUser.toMap());
+    } catch (error) {
+      print('Error setting new user: $error');
+    }
+  }
 
   /* 
     CHAT SCREEN
     
   */
 
-  Stream<List<User>> getUserData(String uid_) {
-    var data = db
-        .collection('users')
-        .doc(uid_)
-        .snapshots()
-        .map((snap) => User.fromMap(snap.data()!));
-    return [] as Stream<List<User>>;
-  }
+  // Stream<List<User>> getUserData(String uid) {
+  //   var data = db
+  //       .collection('users')
+  //       .doc(uid)
+  //       .snapshots()
+  //       .map((snap) => AppUser.fromMap(snap.data()!));
+  //   return [] as Stream<List<User>>;
+  // }
 
   /* 
     WORKOUT SCREEN
@@ -38,10 +51,6 @@ class FirestoreDatabase {
       name: wName,
       createdAt: FieldValue.serverTimestamp(),
     );
-    // var data = {
-    //   'name': wName,
-    //   'createdAt': FieldValue.serverTimestamp(),
-    // };
 
     final mappedData = workout.toMap();
     await db.collection('workouts').add(mappedData);

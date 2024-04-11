@@ -2,7 +2,7 @@ import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/models/user.dart';
+import '../../data/models/app_user.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -23,7 +23,7 @@ class Chat extends StatefulWidget {
 class _ChatState extends State<Chat> {
   @override
   Widget build(BuildContext context) {
-    var users = Provider.of<List<User>>(context);
+    var users = Provider.of<List<AppUser>>(context);
 
     return ListView.builder(
         itemCount: users.length,

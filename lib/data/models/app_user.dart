@@ -1,4 +1,4 @@
-class User {
+class AppUser {
   final String uid;
   final String name;
   final String lname;
@@ -7,7 +7,7 @@ class User {
   List friends;
   List fRequests;
 
-  User({
+  AppUser({
     required this.uid,
     required this.name,
     required this.lname,
@@ -20,11 +20,14 @@ class User {
   Map<String, dynamic> toMap() => {
         'uid': uid,
         'name': name,
-        'lname': lname,
+        'last_name': lname,
         'email': email,
+        'workouts': workouts,
+        'friends': friends,
+        'f_requests': fRequests,
       };
 
-  factory User.fromMap(Map<String, dynamic> data) => User(
+  factory AppUser.fromMap(Map<String, dynamic> data) => AppUser(
         uid: data['uid'] ?? '',
         name: data['name'] ?? '',
         lname: data['last_name'] ?? '',

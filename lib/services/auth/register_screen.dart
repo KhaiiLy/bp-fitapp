@@ -1,7 +1,8 @@
+import 'package:fitapp/data/models/app_user.dart';
+import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// import '../database/firestore_database.dart';
 import 'widgets/my_textfield.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -37,9 +38,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
         // create a new document for the user with the uid
         User? user = userCredential.user;
-        print(user);
-        // add AWAIT before later on
-        // FirestoreDatabase(uid: user!.uid);
+        if (user != null) {
+          AppUser appUser = AppUser(
+            uid: user.uid,
+            name: nameCtrler.text,
+            lname: lNameCtrler.text,
+            email: emailCtrler.text,
+            workouts: [],
+            friends: [],
+            fRequests: [],
+          );
+          FirestoreDatabase().addNewRegistered(appUser);
+        }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
           print('The account already exists for that email.');
@@ -56,6 +66,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    nameCtrler.dispose();
+    lNameCtrler.dispose();
     emailCtrler.dispose();
     passwdCtrler.dispose();
     confirmPasswdCtrler.dispose();

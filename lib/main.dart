@@ -1,14 +1,10 @@
 import 'package:fitapp/services/auth/auth_page.dart';
-import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'services/firebase_options.dart';
-import 'package:fitapp/pages/home.dart';
-import './data/models/workout.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,12 +21,6 @@ class FitApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // String? wID;
-    // return MultiProvider(
-    //   providers: const [
-    //     //empty provider for now
-    //   ],
-    //   child:
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: GoogleFonts.lato().fontFamily),
