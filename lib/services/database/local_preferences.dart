@@ -35,7 +35,6 @@ class LocalPreferences {
   }
 
 // ---------- DATA SETTERS ---------------------------
-
   static Future<void> prepareBatch(
       String wid, String eid, dynamic updatedItem) async {
     List updates = prefs
@@ -86,7 +85,7 @@ class LocalPreferences {
 
     // prefs.remove('${updatesKey}_$wid');
 
-    if (value != '') {
+    if (value != exercises[exIdx]['sets'][setIdx][parameter]) {
       exercises[exIdx]['sets'][setIdx][parameter] = value;
       var updatedItem = exercises[exIdx]['sets'];
       prepareBatch(wid, eid, updatedItem);

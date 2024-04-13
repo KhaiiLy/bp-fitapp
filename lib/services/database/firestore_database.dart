@@ -123,26 +123,31 @@ class FirestoreDatabase {
     print('exercise >> $eID _ empty set added');
   }
 
-  void removeSet(String wID, String? eID, int setIdx) {
+  Future removeSet(String wID, String? eID, int setIdx) async {
     Exercise exercise;
+    print('$wID \n $eID');
 
-    db
-        .collection('workouts')
-        .doc(wID)
-        .collection('exercises')
-        .doc(eID)
-        .get()
-        .then((doc) => {
-              exercise = Exercise.fromMap(doc.data() as Map<String, dynamic>),
-              exercise.sets.removeAt(setIdx),
-              db
-                  .collection('workouts')
-                  .doc(wID)
-                  .collection('exercises')
-                  .doc(eID)
-                  .set(exercise.toMap())
-            });
-    print('exercise >> $eID _ set on index: $setIdx removed');
+    try {
+      await db
+          .collection('workouts')
+          .doc(wID)
+          .collection('exercises')
+          .doc(eID)
+          .get()
+          .then((doc) => {
+                exercise = Exercise.fromMap(doc.data() as Map<String, dynamic>),
+                exercise.sets.removeAt(setIdx),
+                db
+                    .collection('workouts')
+                    .doc(wID)
+                    .collection('exercises')
+                    .doc(eID)
+                    .set(exercise.toMap())
+              });
+      print('exercise >> $eID _ set on index: $setIdx removed');
+    } catch (error) {
+      print('Error removing set: $error');
+    }
   }
 
   String generateDocID(String wID) {
@@ -154,7 +159,6 @@ class FirestoreDatabase {
 
 // ---------- WORKOUT GETTERS ---------------------------
 
-// function to add workout - add new workout id to the list of workouts of a user
 //
   Stream<List<Workout>> getWorkouts(String uid) {
     return db
@@ -223,7 +227,7 @@ class FirestoreDatabase {
         .map((snap) => snap.docs.map((doc) {
               data = doc.data();
               data['eid'] = doc.id;
-              return Exercise.fromMap(doc.data());
+              return Exercise.fromMap(data);
             }).toList());
   }
 }
