@@ -44,14 +44,18 @@ class FirestoreDatabase {
   */
 
 // ---------- WORKOUT - DATA SETTERS ---------------------------
-  Future addWorkout(String wName) async {
+  Future addWorkout(String uid, String wName) async {
     Workout workout = Workout(
       name: wName,
       createdAt: FieldValue.serverTimestamp(),
     );
 
     final mappedData = workout.toMap();
-    await db.collection('workouts').add(mappedData);
+    await db.collection('workouts').add(mappedData).then((doc) {
+      db.collection('users').doc(uid).update({
+        'workouts': FieldValue.arrayUnion([doc.id])
+      });
+    });
   }
 
   void addExercise(String wID, String eID, String exerciseName_) {
@@ -150,7 +154,6 @@ class FirestoreDatabase {
 
 // ---------- WORKOUT GETTERS ---------------------------
 
-//  modify workouts to getWorkouts - of a current logged user
 // function to add workout - add new workout id to the list of workouts of a user
 //
   Stream<List<Workout>> getWorkouts(String uid) {

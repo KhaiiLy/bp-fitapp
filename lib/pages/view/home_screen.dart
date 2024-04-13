@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitapp/data/models/workout.dart';
 import 'package:fitapp/pages/view/workout_screen.dart';
 
@@ -15,6 +16,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // text controller
   final newWorkoutCtrl = TextEditingController();
+
+  String? get currentUser => FirebaseAuth.instance.currentUser?.uid;
 
   // create a new workout
   void createNewWorkout() {
@@ -46,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // save workout
   void save() {
     // add workout to workout data list with provider
-    FirestoreDatabase().addWorkout(newWorkoutCtrl.text);
+    FirestoreDatabase().addWorkout(currentUser!, newWorkoutCtrl.text);
     Navigator.pop(context);
     clear();
   }
