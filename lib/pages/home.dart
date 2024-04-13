@@ -13,12 +13,15 @@ class HomeProviders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser?.uid;
+
     return MultiProvider(
       providers: [
         // StreamProvider.value(
         //     value: FirestoreDatabase().users, initialData: const []),
         StreamProvider<List<Workout>>.value(
-            value: FirestoreDatabase().workouts, initialData: const []),
+            value: FirestoreDatabase().getWorkouts(currentUser!),
+            initialData: const []),
       ],
       child: const Home(),
     );
@@ -34,8 +37,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final currentUser = FirebaseAuth.instance.currentUser?.uid;
-
   // BOTTOM NAVIGATION BAR
   int _currentIndex = 0;
   void _selectScreen(int index) {
@@ -53,8 +54,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print('home.dart >> $currentUser');
-
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

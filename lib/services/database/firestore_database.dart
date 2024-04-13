@@ -1,7 +1,5 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:fitapp/data/models/exercise.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
@@ -151,15 +149,65 @@ class FirestoreDatabase {
   }
 
 // ---------- WORKOUT GETTERS ---------------------------
-  Stream<List<Workout>> get workouts {
-    Stream<List<Workout>> data = db
-        .collection('workouts')
+
+//  modify workouts to getWorkouts - of a current logged user
+// function to add workout - add new workout id to the list of workouts of a user
+//
+  Stream<List<Workout>> getWorkouts(String uid) {
+    return db
+        .collection('users')
+        .doc(uid)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) {
-              return Workout.fromMap(doc.id, doc.data());
-            }).toList());
-    return data;
+        .asyncMap((userSnap) async {
+      try {
+        if (!userSnap.exists) {
+          print('User document by the id: $uid not found.');
+          return [];
+        }
+        List<dynamic> workoutIdsData = userSnap.data()?['workouts'];
+
+        if (workoutIdsData.isEmpty) {
+          print('Workout list of a user: $uid is empty.');
+          return [];
+        }
+        List<String> workoutIds = workoutIdsData.cast<String>();
+        // Fetch workout based on the id
+        List<Future<DocumentSnapshot>> futures = workoutIds
+            .map((id) => db.collection('workouts').doc(id).get())
+            .toList();
+
+        // Waiting for all document fetch futures to complete
+        List<DocumentSnapshot> snapshots = await Future.wait(futures);
+
+        List<Workout> workouts = snapshots
+            .map((doc) {
+              var data = doc.data() as Map<String, dynamic>;
+              if (data.isNotEmpty) {
+                return Workout.fromMap(doc.id, data);
+              } else {
+                print('Document data not available.');
+              }
+            })
+            .cast<Workout>()
+            .toList();
+
+        return workouts;
+      } catch (error) {
+        print('Error loading user workokuts: $error');
+        return [];
+      }
+    });
   }
+
+  // Stream<List<Workout>> get workouts {
+  //   Stream<List<Workout>> data = db
+  //       .collection('workouts')
+  //       .snapshots()
+  //       .map((snap) => snap.docs.map((doc) {
+  //             return Workout.fromMap(doc.id, doc.data());
+  //           }).toList());
+  //   return data;
+  // }
 
   Stream<List<Exercise>> getExercises(String? wID) {
     Map<String, dynamic> data;
