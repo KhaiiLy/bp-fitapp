@@ -1,3 +1,4 @@
+import 'package:fitapp/data/models/app_user.dart';
 import 'package:fitapp/pages/view/profile_screen.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,8 +18,8 @@ class HomeProviders extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        // StreamProvider.value(
-        //     value: FirestoreDatabase().users, initialData: const []),
+        StreamProvider<List<AppUser>>.value(
+            value: FirestoreDatabase().users, initialData: const []),
         StreamProvider<List<Workout>>.value(
             value: FirestoreDatabase().getWorkouts(currentUser!),
             initialData: const []),

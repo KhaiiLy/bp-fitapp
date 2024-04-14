@@ -29,21 +29,3 @@ class FitApp extends StatelessWidget {
     );
   }
 }
-
-// class FitAppHome extends StatelessWidget {
-//   const FitAppHome({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return StreamProvider<List<Workout>>(
-//       create: (context) => FirestoreDatabase().workouts,
-//       initialData: [], // Use an empty list as initialData
-//       catchError: (_, error) {
-//         print("error:  ${error.toString()}");
-//         return []; // Return an empty list in case of an error
-//       },
-//       // child: Home(),
-//       child: const AuthPage(),
-//     );
-//   }
-// }
