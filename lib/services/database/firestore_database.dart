@@ -13,7 +13,6 @@ class FirestoreDatabase {
   /*
     USERS
   */
-
   Future<void> addNewRegistered(AppUser appUser) async {
     try {
       await db.collection('users').doc(appUser.uid).set(appUser.toMap());
@@ -24,7 +23,6 @@ class FirestoreDatabase {
 
   /* 
     CHAT SCREEN
-    
   */
   Stream<List<AppUser>> get users {
     var data = db.collection('users').snapshots().map(
@@ -34,7 +32,6 @@ class FirestoreDatabase {
 
   /* 
     WORKOUT SCREEN
-    
     ../pages/widgets/set_tile.dart
     ../services/database/local_preferences.dart
   */
