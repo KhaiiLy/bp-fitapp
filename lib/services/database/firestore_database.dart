@@ -30,6 +30,28 @@ class FirestoreDatabase {
     return data;
   }
 
+  Future<void> addFriendRequest(String currentUid, String requestingId) async {
+    try {
+      // add current user into list of requests of a user that we sended it to
+      await db.collection('users').doc(requestingId).update({
+        'f_request': FieldValue.arrayUnion([currentUid])
+      });
+    } on Exception catch (e) {
+      print('Error adding id: $requestingId into f_requests list: $e');
+    }
+  }
+
+  Future<void> removeFriendRequest(
+      String currentUid, String requestingId) async {
+    try {
+      await db.collection('users').doc(requestingId).update({
+        'f_request': FieldValue.arrayRemove([currentUid])
+      });
+    } on Exception catch (e) {
+      print('Error removing id: $requestingId from f_requests list: $e');
+    }
+  }
+
   /* 
     WORKOUT SCREEN
     ../pages/widgets/set_tile.dart
