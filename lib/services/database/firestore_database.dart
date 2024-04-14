@@ -26,15 +26,11 @@ class FirestoreDatabase {
     CHAT SCREEN
     
   */
-
-  // Stream<List<User>> getUserData(String uid) {
-  //   var data = db
-  //       .collection('users')
-  //       .doc(uid)
-  //       .snapshots()
-  //       .map((snap) => AppUser.fromMap(snap.data()!));
-  //   return [] as Stream<List<User>>;
-  // }
+  Stream<List<AppUser>> get users {
+    var data = db.collection('users').snapshots().map(
+        (doc) => doc.docs.map((doc) => AppUser.fromMap(doc.data())).toList());
+    return data;
+  }
 
   /* 
     WORKOUT SCREEN
@@ -153,9 +149,6 @@ class FirestoreDatabase {
   }
 
 // ---------- WORKOUT GETTERS ---------------------------
-
-// function to add workout - add new workout id to the list of workouts of a user
-//
   Stream<List<Workout>> getWorkouts(String uid) {
     return db
         .collection('users')
@@ -201,16 +194,6 @@ class FirestoreDatabase {
       }
     });
   }
-
-  // Stream<List<Workout>> get workouts {
-  //   Stream<List<Workout>> data = db
-  //       .collection('workouts')
-  //       .snapshots()
-  //       .map((snap) => snap.docs.map((doc) {
-  //             return Workout.fromMap(doc.id, doc.data());
-  //           }).toList());
-  //   return data;
-  // }
 
   Stream<List<Exercise>> getExercises(String? wID) {
     Map<String, dynamic> data;
