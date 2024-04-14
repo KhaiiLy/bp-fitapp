@@ -1,22 +1,39 @@
 import 'package:flutter/material.dart';
 
-class UserTile extends StatelessWidget {
+class UserTile extends StatefulWidget {
   final String userName;
+  bool requestSend;
+  final VoidCallback sendFriendRequest;
+  final VoidCallback cancelFriendRequest;
 
-  const UserTile({
+  UserTile({
     Key? key,
     required this.userName,
+    required this.requestSend,
+    required this.sendFriendRequest,
+    required this.cancelFriendRequest,
   }) : super(key: key);
 
   @override
+  State<UserTile> createState() => _UserTileState();
+}
+
+class _UserTileState extends State<UserTile> {
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return Card(
       child: ListTile(
         leading: const CircleAvatar(child: Icon((Icons.person))),
-        title: Text(userName),
+        title: Text(widget.userName),
+        trailing: widget.requestSend
+            ? IconButton(
+                icon: const Icon(Icons.person_remove_outlined),
+                onPressed: widget.cancelFriendRequest,
+              )
+            : IconButton(
+                icon: const Icon(Icons.person_add_alt_outlined),
+                onPressed: widget.sendFriendRequest,
+              ),
       ),
     );
   }
