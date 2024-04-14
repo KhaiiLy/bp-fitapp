@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 class UserTile extends StatefulWidget {
   final String userName;
   bool requestSend;
-  final VoidCallback sendFriendRequest;
-  final VoidCallback cancelFriendRequest;
+  final VoidCallback? sendFriendRequest;
+  final VoidCallback? cancelFriendRequest;
 
   UserTile({
     Key? key,
     required this.userName,
     required this.requestSend,
-    required this.sendFriendRequest,
-    required this.cancelFriendRequest,
+    this.sendFriendRequest,
+    this.cancelFriendRequest,
   }) : super(key: key);
 
   @override
