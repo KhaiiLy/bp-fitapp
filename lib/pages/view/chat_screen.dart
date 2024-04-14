@@ -39,6 +39,8 @@ class _ChatState extends State<Chat> {
     });
   }
 
+  void sendFriendRequest(String uid) {}
+
   void _runFilter(String txtSearch) {
     List<AppUser> data = [];
     if (txtSearch.isEmpty) {
@@ -94,7 +96,12 @@ class _ChatState extends State<Chat> {
                 itemBuilder: (context, idx) {
                   var fullName =
                       "${_foundUsers[idx].name} ${_foundUsers[idx].lname}";
-                  return UserTile(userName: fullName);
+                  return UserTile(
+                    userName: fullName,
+                    requestSend: false,
+                    sendFriendRequest: () =>
+                        sendFriendRequest(_foundUsers[idx].uid),
+                  );
                 },
               ),
             )
