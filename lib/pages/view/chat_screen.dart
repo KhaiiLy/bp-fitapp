@@ -39,6 +39,8 @@ class _ChatState extends State<Chat> {
     });
   }
 
+  void sendFriendRequest(String uid) {}
+
   void _runFilter(String txtSearch) {
     List<AppUser> data = [];
     if (txtSearch.isEmpty) {
@@ -65,20 +67,26 @@ class _ChatState extends State<Chat> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              controller: _searchCtrl,
-              onChanged: ((value) => _runFilter(value)),
-              decoration: InputDecoration(
-                hintText: 'Connect here ..',
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.grey.shade600,
-                ),
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                enabledBorder: OutlineInputBorder(
+            SizedBox(
+              height: 40,
+              child: TextField(
+                controller: _searchCtrl,
+                onChanged: ((value) => _runFilter(value)),
+                style: const TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Connect here ..',
+                  contentPadding: const EdgeInsets.all(8),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.grey.shade600,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide(color: Colors.grey.shade100)),
+                    borderSide: BorderSide(color: Colors.grey.shade100),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -88,7 +96,12 @@ class _ChatState extends State<Chat> {
                 itemBuilder: (context, idx) {
                   var fullName =
                       "${_foundUsers[idx].name} ${_foundUsers[idx].lname}";
-                  return UserTile(userName: fullName);
+                  return UserTile(
+                    userName: fullName,
+                    requestSend: false,
+                    sendFriendRequest: () =>
+                        sendFriendRequest(_foundUsers[idx].uid),
+                  );
                 },
               ),
             )

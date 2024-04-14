@@ -27,16 +27,13 @@ class AppUser {
         'f_requests': fRequests,
       };
 
-  factory AppUser.fromMap(Map<String, dynamic> data) {
-    print(data);
-    return AppUser(
-      uid: data['uid'] ?? '',
-      name: data['name'] ?? '',
-      lname: data['last_name'] ?? '',
-      email: data['email'] ?? '',
-      workouts: data['workouts'] ?? [],
-      friends: data['friends'] ?? [],
-      fRequests: data['f_requests'] ?? [],
-    );
-  }
+  factory AppUser.fromMap(Map<String, dynamic> data) => AppUser(
+        uid: data['uid'] ?? '',
+        name: data['name'] ?? '',
+        lname: data['last_name'] ?? '',
+        email: data['email'] ?? '',
+        workouts: data['workouts'] ?? [],
+        friends: data['friends'] ?? [],
+        fRequests: data['f_requests'] ?? [],
+      );
 }
