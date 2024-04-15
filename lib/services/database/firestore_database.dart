@@ -32,7 +32,7 @@ class FirestoreDatabase {
   }
 
   Future<void> addFriendRequest(String currentUid, String requestingId) async {
-    DocumentReference documentRef = db.collection('users').doc(requestingId);
+    // DocumentReference documentRef = db.collection('users').doc(requestingId);
     FriendRequest newRequest =
         FriendRequest(reqUid: currentUid, state: 'unresolved');
 
@@ -43,11 +43,14 @@ class FirestoreDatabase {
       //   user.fRequests.add(newRequest);
       //   db.collection('users').doc(requestingId).set(user.toMap());
       // });
-      var snap = await documentRef.get().then((value) => null);
+      var snap = await db.collection('users').doc(requestingId).get();
       List<Map<String, dynamic>> requests =
-          List<Map<String, dynamic>>.from(snap.data().doc['f_requests']);
+          List<Map<String, dynamic>>.from(snap.data()!['f_requests']);
       requests.add(newRequest.toMap());
-      await documentRef.update({'f_requests': requests});
+      await db
+          .collection('users')
+          .doc(requestingId)
+          .update({'f_requests': requests});
     } on Exception catch (e) {
       print('Error adding id: $requestingId into f_requests list: $e');
     }
