@@ -18,7 +18,9 @@ class HomeProviders extends StatelessWidget {
       providers: [
         Provider<String?>.value(value: FirebaseAuth.instance.currentUser?.uid),
         StreamProvider<List<AppUser>>.value(
-            value: FirestoreDatabase().users, initialData: const []),
+            // ignore: prefer_const_literals_to_create_immutables
+            value: FirestoreDatabase().users,
+            initialData: []),
         StreamProvider<List<Workout>>(
             create: ((context) {
               final String? currentUserId =
