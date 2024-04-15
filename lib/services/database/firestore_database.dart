@@ -38,11 +38,6 @@ class FirestoreDatabase {
 
     try {
       // add current user into list of requests of a user that we sended it to
-      // await db.collection('users').doc(requestingId).get().then((doc) {
-      //   user = AppUser.fromMap(doc.data()!);
-      //   user.fRequests.add(newRequest);
-      //   db.collection('users').doc(requestingId).set(user.toMap());
-      // });
       var snap = await db.collection('users').doc(requestingId).get();
       List<Map<String, dynamic>> requests =
           List<Map<String, dynamic>>.from(snap.data()!['f_requests']);
