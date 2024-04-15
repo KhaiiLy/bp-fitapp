@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:fitapp/data/models/exercise.dart';
+import 'package:fitapp/data/models/friend_request.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
 import '../../data/models/workout.dart';
 import '../../data/models/sets.dart';
@@ -31,11 +32,22 @@ class FirestoreDatabase {
   }
 
   Future<void> addFriendRequest(String currentUid, String requestingId) async {
+    DocumentReference documentRef = db.collection('users').doc(requestingId);
+    FriendRequest newRequest =
+        FriendRequest(reqUid: currentUid, state: 'unresolved');
+
     try {
       // add current user into list of requests of a user that we sended it to
-      await db.collection('users').doc(requestingId).update({
-        'f_request': FieldValue.arrayUnion([currentUid])
-      });
+      // await db.collection('users').doc(requestingId).get().then((doc) {
+      //   user = AppUser.fromMap(doc.data()!);
+      //   user.fRequests.add(newRequest);
+      //   db.collection('users').doc(requestingId).set(user.toMap());
+      // });
+      var snap = await documentRef.get().then((value) => null);
+      List<Map<String, dynamic>> requests =
+          List<Map<String, dynamic>>.from(snap.data().doc['f_requests']);
+      requests.add(newRequest.toMap());
+      await documentRef.update({'f_requests': requests});
     } on Exception catch (e) {
       print('Error adding id: $requestingId into f_requests list: $e');
     }
