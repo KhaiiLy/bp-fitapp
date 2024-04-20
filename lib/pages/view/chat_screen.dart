@@ -1,8 +1,11 @@
+import 'package:fitapp/pages/widgets/dialog_search.dart';
 import 'package:fitapp/pages/widgets/user_tile.dart';
+import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/app_user.dart';
+import 'package:fitapp/pages/widgets/chat_search_bar.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -21,39 +24,52 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
-  final TextEditingController _searchCtrl = TextEditingController();
-  List<AppUser> _foundUsers = [];
-  List<AppUser> users = [];
+  late List<AppUser> others;
+  late List<AppUser> friends;
+  late List<AppUser> users;
+  late AppUser currentUser;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  late List<AppUser> foundFriends;
 
   @override
   void didChangeDependencies() {
-    super.didChangeDependencies();
+    currentUser = Provider.of<AppUser>(context);
     users = Provider.of<List<AppUser>>(context);
-    setState(() {
-      _foundUsers = users;
-    });
+
+    setListviewData(currentUser.friends);
+    super.didChangeDependencies();
   }
 
-  void sendFriendRequest(String uid) {}
+  void setListviewData(List<dynamic> friendIds) {
+    friends = users.where((obj) => friendIds.contains(obj.uid)).toList();
+    users.removeWhere((item) => item.uid == currentUser.uid);
+    foundFriends = friends;
+    others = users;
+  }
 
   void _runFilter(String txtSearch) {
     List<AppUser> data = [];
+
     if (txtSearch.isEmpty) {
-      data = users;
+      data = friends;
     } else if (txtSearch.isNotEmpty) {
-      data = users.where((user) {
-        String fullName = "${user.name} ${user.lname}";
+      data = friends.where((friend) {
+        String fullName = "${friend.name} ${friend.lname}";
         return fullName.toLowerCase().contains(txtSearch.toLowerCase());
       }).toList();
     }
     setState(() {
-      _foundUsers = data;
+      foundFriends = data;
     });
+  }
+
+  void _searchWindow() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DialogSearch(currentUser: currentUser, appUsers: others);
+      },
+    );
   }
 
   @override
@@ -61,51 +77,50 @@ class _ChatState extends State<Chat> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat Screen'),
-        actions: [],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 40,
-              child: TextField(
-                controller: _searchCtrl,
-                onChanged: ((value) => _runFilter(value)),
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Connect here ..',
-                  contentPadding: const EdgeInsets.all(8),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Colors.grey.shade600,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide(color: Colors.grey.shade100),
-                  ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 40,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ChatSearchhBar(runFilter: _runFilter),
+                    const SizedBox(width: 10),
+                    IconButton(
+                      onPressed: () => _searchWindow(),
+                      icon: const Icon(Icons.person_add_alt_outlined),
+                    )
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _foundUsers.length,
-                itemBuilder: (context, idx) {
-                  var fullName =
-                      "${_foundUsers[idx].name} ${_foundUsers[idx].lname}";
-                  return UserTile(
-                    userName: fullName,
-                    requestSend: false,
-                    sendFriendRequest: () =>
-                        sendFriendRequest(_foundUsers[idx].uid),
-                  );
-                },
-              ),
-            )
-          ],
+              const SizedBox(height: 20),
+              // BUILD USER LIST
+              Expanded(
+                child: ListView.builder(
+                  itemCount: foundFriends.length,
+                  itemBuilder: (context, idx) {
+                    var fullName =
+                        "${foundFriends[idx].name} ${foundFriends[idx].lname}";
+                    return UserTile(
+                      userName: fullName,
+                      requestSend:
+                          currentUser.fRequests.contains(foundFriends[idx].uid),
+                      sendFriendRequest: () => FirestoreDatabase()
+                          .addFriendRequest(
+                              currentUser.uid, foundFriends[idx].uid),
+                      cancelFriendRequest: () => FirestoreDatabase()
+                          .removeFriendRequest(
+                              currentUser.uid, foundFriends[idx].uid),
+                    );
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
