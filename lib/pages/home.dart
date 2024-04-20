@@ -14,24 +14,29 @@ class HomeProviders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var currentUserId = FirebaseAuth.instance.currentUser!.uid;
     return MultiProvider(
       providers: [
-        Provider<String?>.value(value: FirebaseAuth.instance.currentUser?.uid),
+        StreamProvider<AppUser>.value(
+          value: FirestoreDatabase().getAppUserData(currentUserId),
+          initialData: AppUser(
+              uid: '',
+              name: '',
+              lname: '',
+              email: '',
+              workouts: [],
+              friends: [],
+              fRequests: []),
+        ),
         StreamProvider<List<AppUser>>.value(
-            // ignore: prefer_const_literals_to_create_immutables
             value: FirestoreDatabase().users,
+            // ignore: prefer_const_literals_to_create_immutables
             initialData: []),
-        StreamProvider<List<Workout>>(
-            create: ((context) {
-              final String? currentUserId =
-                  Provider.of<String?>(context, listen: false);
-              if (currentUserId != null) {
-                return FirestoreDatabase().getWorkouts(currentUserId);
-              } else {
-                return const Stream<List<Workout>>.empty();
-              }
-            }),
-            initialData: const []),
+        StreamProvider<List<Workout>>.value(
+          value: FirestoreDatabase().getWorkouts(currentUserId),
+          // ignore: prefer_const_literals_to_create_immutables
+          initialData: [],
+        ),
       ],
       child: const Home(),
     );
