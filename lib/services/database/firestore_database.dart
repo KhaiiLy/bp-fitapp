@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:fitapp/data/models/exercise.dart';
-import 'package:fitapp/data/models/friend_request.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
 import '../../data/models/workout.dart';
 import '../../data/models/sets.dart';
@@ -25,27 +24,30 @@ class FirestoreDatabase {
   /* 
     CHAT SCREEN
   */
+
+  // get current users.data - retrieve list of friend List<String>
+  Stream<AppUser> getAppUserData(String uid) {
+    var data = db
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .map((doc) => AppUser.fromMap(doc.data()!));
+    return data;
+  }
+
+// get list of users
   Stream<List<AppUser>> get users {
     var data = db.collection('users').snapshots().map(
         (doc) => doc.docs.map((doc) => AppUser.fromMap(doc.data())).toList());
     return data;
   }
 
-  Future<void> addFriendRequest(String currentUid, String requestingId) async {
-    // DocumentReference documentRef = db.collection('users').doc(requestingId);
-    FriendRequest newRequest =
-        FriendRequest(reqUid: currentUid, state: 'unresolved');
-
+  Future<void> sendFriendRequest(String currentUid, String requestingId) async {
     try {
-      // add current user into list of requests of a user that we sended it to
-      var snap = await db.collection('users').doc(requestingId).get();
-      List<Map<String, dynamic>> requests =
-          List<Map<String, dynamic>>.from(snap.data()!['f_requests']);
-      requests.add(newRequest.toMap());
-      await db
-          .collection('users')
-          .doc(requestingId)
-          .update({'f_requests': requests});
+      // add current user into received_fReq of a user we want to link with
+      await db.collection('users').doc(requestingId).update({
+        'received_fReq': FieldValue.arrayUnion([currentUid])
+      });
     } on Exception catch (e) {
       print('Error adding id: $requestingId into f_requests list: $e');
     }
@@ -55,7 +57,7 @@ class FirestoreDatabase {
       String currentUid, String requestingId) async {
     try {
       await db.collection('users').doc(requestingId).update({
-        'f_request': FieldValue.arrayRemove([currentUid])
+        'received_fReq': FieldValue.arrayRemove([currentUid])
       });
     } on Exception catch (e) {
       print('Error removing id: $requestingId from f_requests list: $e');
