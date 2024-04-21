@@ -7,7 +7,7 @@ class AppUser {
   final String email;
   List workouts;
   List friends;
-  List<FriendRequest> fRequests;
+  List fRequests;
 
   AppUser({
     required this.uid,
@@ -26,7 +26,7 @@ class AppUser {
         'email': email,
         'workouts': workouts,
         'friends': friends,
-        'f_requests': convertRequests(),
+        'received_fReq': fRequests,
       };
 
   List<Map<String, dynamic>> convertRequests() {
@@ -44,7 +44,8 @@ class AppUser {
         email: data['email'] ?? '',
         workouts: data['workouts'] ?? [],
         friends: data['friends'] ?? [],
-        fRequests: List<FriendRequest>.from(
-            data['f_requests']?.map((x) => FriendRequest.fromMap(x))),
+        fRequests: data['received_fReq'] ?? [],
+        // fRequests: List<FriendRequest>.from(
+        //     data['f_requests']?.map((x) => FriendRequest.fromMap(x))),
       );
 }
