@@ -110,7 +110,7 @@ class _ChatState extends State<Chat> {
                       requestSend:
                           currentUser.fRequests.contains(foundFriends[idx].uid),
                       sendFriendRequest: () => FirestoreDatabase()
-                          .addFriendRequest(
+                          .sendFriendRequest(
                               currentUser.uid, foundFriends[idx].uid),
                       cancelFriendRequest: () => FirestoreDatabase()
                           .removeFriendRequest(
