@@ -24,17 +24,29 @@ class FirestoreDatabase {
   /* 
     CHAT SCREEN
   */
+
+  // get current users.data - retrieve list of friend List<String>
+  Stream<AppUser> getAppUserData(String uid) {
+    var data = db
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .map((doc) => AppUser.fromMap(doc.data()!));
+    return data;
+  }
+
+// get list of users
   Stream<List<AppUser>> get users {
     var data = db.collection('users').snapshots().map(
         (doc) => doc.docs.map((doc) => AppUser.fromMap(doc.data())).toList());
     return data;
   }
 
-  Future<void> addFriendRequest(String currentUid, String requestingId) async {
+  Future<void> sendFriendRequest(String currentUid, String requestingId) async {
     try {
-      // add current user into list of requests of a user that we sended it to
+      // add current user into received_fReq of a user we want to link with
       await db.collection('users').doc(requestingId).update({
-        'f_request': FieldValue.arrayUnion([currentUid])
+        'received_fReq': FieldValue.arrayUnion([currentUid])
       });
     } on Exception catch (e) {
       print('Error adding id: $requestingId into f_requests list: $e');
@@ -45,7 +57,7 @@ class FirestoreDatabase {
       String currentUid, String requestingId) async {
     try {
       await db.collection('users').doc(requestingId).update({
-        'f_request': FieldValue.arrayRemove([currentUid])
+        'received_fReq': FieldValue.arrayRemove([currentUid])
       });
     } on Exception catch (e) {
       print('Error removing id: $requestingId from f_requests list: $e');

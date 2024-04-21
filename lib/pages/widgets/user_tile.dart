@@ -24,7 +24,7 @@ class _UserTileState extends State<UserTile> {
     return Card(
       child: ListTile(
         leading: const CircleAvatar(child: Icon((Icons.person))),
-        title: Text(widget.userName),
+        title: Text(widget.userName, style: const TextStyle(fontSize: 14)),
         trailing: widget.requestSend
             ? IconButton(
                 icon: const Icon(Icons.person_remove_outlined),
