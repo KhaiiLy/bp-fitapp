@@ -89,7 +89,7 @@ class _DialogSearchState extends State<DialogSearch> {
                       requestSend:
                           currentUser.fRequests.contains(foundUsers[idx].uid),
                       sendFriendRequest: () => FirestoreDatabase()
-                          .addFriendRequest(
+                          .sendFriendRequest(
                               currentUser.uid, foundUsers[idx].uid),
                       cancelFriendRequest: () => FirestoreDatabase()
                           .removeFriendRequest(
