@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fitapp/data/models/workout.dart';
+import 'package:fitapp/data/workout/workout.dart';
 import 'package:fitapp/pages/view/workout_screen.dart';
 
 import 'package:fitapp/services/database/firestore_database.dart';

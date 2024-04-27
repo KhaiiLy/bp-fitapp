@@ -1,8 +1,8 @@
 import 'package:fitapp/services/database/local_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:fitapp/pages/widgets/set_tile.dart';
-import 'package:fitapp/data/models/exercise.dart';
-import 'package:fitapp/data/models/sets.dart';
+import 'package:fitapp/data/workout/exercise.dart';
+import 'package:fitapp/data/workout/sets.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:provider/provider.dart';
 
