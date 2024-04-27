@@ -1,17 +1,22 @@
-import 'package:fitapp/data/models/app_user.dart';
+import 'package:fitapp/data/users/app_user.dart';
 import 'package:fitapp/pages/view/profile_screen.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/models/workout.dart';
+import '../data/workout/workout.dart';
 import 'view/chat_screen.dart';
 import 'view/home_screen.dart';
 
-class HomeProviders extends StatelessWidget {
+class HomeProviders extends StatefulWidget {
   const HomeProviders({super.key});
 
+  @override
+  State<HomeProviders> createState() => _HomeProvidersState();
+}
+
+class _HomeProvidersState extends State<HomeProviders> {
   @override
   Widget build(BuildContext context) {
     var currentUserId = FirebaseAuth.instance.currentUser!.uid;
@@ -26,7 +31,8 @@ class HomeProviders extends StatelessWidget {
               email: '',
               workouts: [],
               friends: [],
-              fRequests: []),
+              fRequests: [],
+              chatRoom: {}),
         ),
         StreamProvider<List<AppUser>>.value(
             value: FirestoreDatabase().users,
@@ -52,7 +58,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   // BOTTOM NAVIGATION BAR
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   void _selectScreen(int index) {
     setState(() {
       _currentIndex = index;

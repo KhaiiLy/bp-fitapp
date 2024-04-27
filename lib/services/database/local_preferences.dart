@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:fitapp/data/models/exercise.dart';
+import 'package:fitapp/data/workout/exercise.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

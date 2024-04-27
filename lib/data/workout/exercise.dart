@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fitapp/data/models/sets.dart';
+import 'package:fitapp/data/workout/sets.dart';
 
 class Exercise {
   final String? eid;

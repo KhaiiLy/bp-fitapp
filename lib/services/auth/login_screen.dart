@@ -50,72 +50,73 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: const Color(0xffF1F6F5),
       body: SafeArea(
-          child: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 50),
+        child: Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
 
-            Image.asset(
-              'lib/images/pokeball.png',
-              height: 165,
-            ),
-            const SizedBox(height: 35),
+                Image.asset('lib/images/pokeball.png', height: 120),
+                const SizedBox(height: 35),
 
-            // USER INPUTS
-            MyTextField(
-                controller: emailCtrler,
-                labelText: "Email",
-                obscureText: false),
-            MyTextField(
-                controller: passwdCtrler,
-                labelText: "Password",
-                obscureText: true),
-            const SizedBox(height: 10),
+                // USER INPUTS
+                MyTextField(
+                    controller: emailCtrler,
+                    labelText: "Email",
+                    obscureText: false),
+                MyTextField(
+                    controller: passwdCtrler,
+                    labelText: "Password",
+                    obscureText: true),
+                const SizedBox(height: 10),
 
-            // FORGOT PASSWORD
-            Text(
-              "Forgot Password?",
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 25),
-
-            // LOGIN BUTTON
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(140, 50),
-                backgroundColor: const Color.fromARGB(255, 73, 185, 216),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                // FORGOT PASSWORD
+                Text(
+                  "Forgot Password?",
+                  style: TextStyle(color: Colors.grey.shade600),
                 ),
-              ),
-              onPressed: _isLoading ? null : signIn,
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 25,
-                      width: 25,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text("Log In", style: TextStyle(fontSize: 20)),
-            ),
+                const SizedBox(height: 25),
 
-            const Expanded(child: SizedBox(height: 25)),
-
-            const Text("Not on FitApp yet?"),
-            GestureDetector(
-              onTap: widget.onTap,
-              child: const Text(
-                "Sign Up",
-                style: TextStyle(
-                  color: Color(0xff4B56D2),
-                  fontWeight: FontWeight.bold,
+                // LOGIN BUTTON
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(140, 50),
+                    backgroundColor: const Color.fromARGB(255, 73, 185, 216),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: _isLoading ? null : signIn,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text("Log In", style: TextStyle(fontSize: 20)),
                 ),
-              ),
+
+                const SizedBox(height: 25),
+
+                const Text("Not on FitApp yet?"),
+                GestureDetector(
+                  onTap: widget.onTap,
+                  child: const Text(
+                    "Sign Up",
+                    style: TextStyle(
+                      color: Color(0xff4B56D2),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 35),
+              ],
             ),
-            const SizedBox(height: 35),
-          ],
+          ),
         ),
-      )),
+      ),
     );
   }
 }
