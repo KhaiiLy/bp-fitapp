@@ -4,7 +4,7 @@ import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/models/app_user.dart';
+import '../../data/users/app_user.dart';
 import 'package:fitapp/pages/widgets/chat_search_bar.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -103,18 +103,18 @@ class _ChatState extends State<Chat> {
                 child: ListView.builder(
                   itemCount: foundFriends.length,
                   itemBuilder: (context, idx) {
-                    var fullName =
-                        "${foundFriends[idx].name} ${foundFriends[idx].lname}";
+                    var user = foundFriends[idx];
+                    var fullName = "${user.name} ${user.lname}";
+                    var roomId = currentUser.chatRoom[user.uid];
+                    // return Text('$fullName \n $roomId');
                     return UserTile(
+                      roomId: roomId,
                       userName: fullName,
-                      requestSend:
-                          currentUser.fRequests.contains(foundFriends[idx].uid),
+                      requestSend: currentUser.fRequests.contains(user.uid),
                       sendFriendRequest: () => FirestoreDatabase()
-                          .sendFriendRequest(
-                              currentUser.uid, foundFriends[idx].uid),
+                          .sendFriendRequest(currentUser.uid, user.uid),
                       cancelFriendRequest: () => FirestoreDatabase()
-                          .removeFriendRequest(
-                              currentUser.uid, foundFriends[idx].uid),
+                          .removeFriendRequest(currentUser.uid, user.uid),
                     );
                   },
                 ),
