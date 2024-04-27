@@ -1,4 +1,4 @@
-import 'package:fitapp/data/models/friend_request.dart';
+import 'package:fitapp/data/users/friend_request.dart';
 
 class AppUser {
   final String uid;
@@ -8,6 +8,7 @@ class AppUser {
   List workouts;
   List friends;
   List fRequests;
+  Map<String, dynamic> chatRoom;
 
   AppUser({
     required this.uid,
@@ -17,6 +18,7 @@ class AppUser {
     required this.workouts,
     required this.friends,
     required this.fRequests,
+    required this.chatRoom,
   });
 
   Map<String, dynamic> toMap() => {
@@ -27,6 +29,7 @@ class AppUser {
         'workouts': workouts,
         'friends': friends,
         'received_fReq': fRequests,
+        'get_chat': chatRoom,
       };
 
   List<Map<String, dynamic>> convertRequests() {
@@ -45,6 +48,7 @@ class AppUser {
         workouts: data['workouts'] ?? [],
         friends: data['friends'] ?? [],
         fRequests: data['received_fReq'] ?? [],
+        chatRoom: data['get_chat'] ?? {},
         // fRequests: List<FriendRequest>.from(
         //     data['f_requests']?.map((x) => FriendRequest.fromMap(x))),
       );
