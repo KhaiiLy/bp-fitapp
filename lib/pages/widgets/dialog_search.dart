@@ -1,4 +1,4 @@
-import 'package:fitapp/data/models/app_user.dart';
+import 'package:fitapp/data/users/app_user.dart';
 import 'package:fitapp/pages/widgets/chat_search_bar.dart';
 import 'package:fitapp/pages/widgets/user_tile.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
@@ -82,18 +82,17 @@ class _DialogSearchState extends State<DialogSearch> {
                 child: ListView.builder(
                   itemCount: foundUsers.length,
                   itemBuilder: (context, idx) {
-                    var fullName =
-                        "${foundUsers[idx].name} ${foundUsers[idx].lname}";
+                    var user = foundUsers[idx];
+                    var fullName = "${user.name} ${user.lname}";
+
                     return UserTile(
+                      roomId: currentUser.chatRoom[user.uid],
                       userName: fullName,
-                      requestSend:
-                          currentUser.fRequests.contains(foundUsers[idx].uid),
+                      requestSend: currentUser.fRequests.contains(user.uid),
                       sendFriendRequest: () => FirestoreDatabase()
-                          .sendFriendRequest(
-                              currentUser.uid, foundUsers[idx].uid),
+                          .sendFriendRequest(currentUser.uid, user.uid),
                       cancelFriendRequest: () => FirestoreDatabase()
-                          .removeFriendRequest(
-                              currentUser.uid, foundUsers[idx].uid),
+                          .removeFriendRequest(currentUser.uid, user.uid),
                     );
                   },
                 ),
