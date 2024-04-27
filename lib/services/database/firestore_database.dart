@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fitapp/data/chat/chat_room.dart';
+import 'package:fitapp/data/chat/message.dart';
 
-import 'package:fitapp/data/models/exercise.dart';
+import 'package:fitapp/data/workout/exercise.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
-import '../../data/models/workout.dart';
-import '../../data/models/sets.dart';
-import '../../data/models/app_user.dart';
+import '../../data/workout/workout.dart';
+import '../../data/workout/sets.dart';
+import '../../data/users/app_user.dart';
 
 class FirestoreDatabase {
   final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -24,6 +26,55 @@ class FirestoreDatabase {
   /* 
     CHAT SCREEN
   */
+
+  Future<void> sendMessage(
+      String roomID, String senderID, String content) async {
+    var timestamp = FieldValue.serverTimestamp();
+    Message message = Message(
+      senderId: senderID,
+      content: content,
+      sentAt: timestamp,
+    );
+    await db
+        .collection('chat_rooms')
+        .doc(roomID)
+        .collection('messages')
+        .add(message.toMap())
+        .then(
+          (value) => db
+              .collection('chat_rooms')
+              .doc(roomID)
+              .update({'last_message': timestamp}),
+        );
+  }
+
+  Stream<ChatRoom> getChatHistory(String roomId) {
+    try {
+      final chatRoom = db
+          .collection('chat_rooms')
+          .doc(roomId)
+          .snapshots()
+          .asyncMap((doc) async {
+        final msgSnap = db
+            .collection('chat_rooms')
+            .doc(roomId)
+            .collection('messages')
+            .orderBy('sent_at', descending: true)
+            .get();
+        var messages = await msgSnap.then((value) =>
+            value.docs.map((msg) => Message.fromMap(msg.data())).toList());
+        var data = doc.data()!;
+        data['messages'] = messages;
+        data['room_id'] = roomId;
+
+        return ChatRoom.fromMap(data);
+      });
+      return chatRoom;
+    } catch (e) {
+      print('Error fetching chat room: $e');
+      return const Stream.empty();
+    }
+  }
 
   // get current users.data - retrieve list of friend List<String>
   Stream<AppUser> getAppUserData(String uid) {
