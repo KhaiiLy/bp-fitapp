@@ -93,25 +93,63 @@ class FirestoreDatabase {
     return data;
   }
 
-  Future<void> sendFriendRequest(String currentUid, String requestingId) async {
+  Future<void> sendFriendRequest(String currentUid, String otherUid) async {
     try {
       // add current user into received_fReq of a user we want to link with
-      await db.collection('users').doc(requestingId).update({
+      await db.collection('users').doc(otherUid).update({
         'received_fReq': FieldValue.arrayUnion([currentUid])
       });
     } on Exception catch (e) {
-      print('Error adding id: $requestingId into f_requests list: $e');
+      print('Error adding id: $otherUid into f_requests list: $e');
     }
   }
 
-  Future<void> removeFriendRequest(
-      String currentUid, String requestingId) async {
+  Future<String> createChatRoom() async {
+    var data = {'last_message': FieldValue.serverTimestamp(), 'room_id': ''};
+    var docRef = await db.collection('chat_rooms').add(data);
+    return docRef.id;
+  }
+
+  Future<void> acceptFriendReq(String currentUid, String reqSenderId) async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
     try {
-      await db.collection('users').doc(requestingId).update({
+      var currUserRef = db.collection('users').doc(currentUid);
+      var reqSenderRef = db.collection('users').doc(reqSenderId);
+
+      batch.update(currUserRef, {
+        'received_fReq': FieldValue.arrayRemove([reqSenderId]),
+        'friends': FieldValue.arrayUnion([reqSenderId])
+      });
+      batch.update(reqSenderRef, {
+        // 'received_fReq': FieldValue.arrayRemove([reqSenderId]),
+        'friends': FieldValue.arrayUnion([currentUid])
+      });
+      String roomId = await createChatRoom();
+      batch.set(
+          currUserRef,
+          {
+            'get_chat': {reqSenderId: roomId}
+          },
+          SetOptions(merge: true));
+      batch.set(
+          reqSenderRef,
+          {
+            'get_chat': {currentUid: roomId}
+          },
+          SetOptions(merge: true));
+      await batch.commit();
+    } catch (e) {
+      print('Accept friend request error: $e');
+    }
+  }
+
+  Future<void> removeFriendRequest(String currentUid, String otherUid) async {
+    try {
+      await db.collection('users').doc(otherUid).update({
         'received_fReq': FieldValue.arrayRemove([currentUid])
       });
     } on Exception catch (e) {
-      print('Error removing id: $requestingId from f_requests list: $e');
+      print('Error removing id: $otherUid from f_requests list: $e');
     }
   }
 

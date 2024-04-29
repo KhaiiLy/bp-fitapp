@@ -3,15 +3,14 @@ import 'package:fitapp/pages/widgets/chat_search_bar.dart';
 import 'package:fitapp/pages/widgets/user_tile.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DialogSearch extends StatefulWidget {
   final AppUser currentUser;
-  final List<AppUser> appUsers;
 
   const DialogSearch({
     super.key,
     required this.currentUser,
-    required this.appUsers,
   });
 
   @override
@@ -28,12 +27,10 @@ class _DialogSearchState extends State<DialogSearch> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    setState(() {
-      appUsers = widget.appUsers;
-      currentUser = widget.currentUser;
-
-      foundUsers = widget.appUsers;
-    });
+    currentUser = widget.currentUser;
+    appUsers = Provider.of<List<AppUser>>(context);
+    appUsers.removeWhere((item) => item.uid == currentUser.uid);
+    foundUsers = appUsers;
   }
 
   void _runFilter(String txtSearch) {
@@ -82,18 +79,22 @@ class _DialogSearchState extends State<DialogSearch> {
                 child: ListView.builder(
                   itemCount: foundUsers.length,
                   itemBuilder: (context, idx) {
-                    var user = foundUsers[idx];
-                    var fullName = "${user.name} ${user.lname}";
+                    AppUser user = foundUsers[idx];
+                    String fullName = "${user.name} ${user.lname}";
+                    bool isFriend = currentUser.friends.contains(user.uid);
 
                     return UserTile(
-                      roomId: currentUser.chatRoom[user.uid],
-                      userName: fullName,
-                      requestSend: currentUser.fRequests.contains(user.uid),
-                      sendFriendRequest: () => FirestoreDatabase()
-                          .sendFriendRequest(currentUser.uid, user.uid),
-                      cancelFriendRequest: () => FirestoreDatabase()
-                          .removeFriendRequest(currentUser.uid, user.uid),
-                    );
+                        userName: fullName,
+                        requestSend: user.fRequests.contains(currentUser.uid),
+                        isFriend: isFriend,
+                        sendFriendRequest: () => setState(() {
+                              FirestoreDatabase()
+                                  .sendFriendRequest(currentUser.uid, user.uid);
+                            }),
+                        cancelFriendRequest: () => setState(() {
+                              FirestoreDatabase().removeFriendRequest(
+                                  currentUser.uid, user.uid);
+                            }));
                   },
                 ),
               )
