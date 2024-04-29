@@ -1,57 +1,43 @@
-import 'package:fitapp/pages/view/chat_room_screen.dart';
 import 'package:flutter/material.dart';
 
 class UserTile extends StatefulWidget {
-  final String roomId;
   final String userName;
-  bool requestSend;
+  final bool requestSend;
+  final bool isFriend;
   final VoidCallback? sendFriendRequest;
   final VoidCallback? cancelFriendRequest;
 
-  UserTile({
-    Key? key,
-    required this.roomId,
+  const UserTile({
+    super.key,
     required this.userName,
     required this.requestSend,
+    required this.isFriend,
     this.sendFriendRequest,
     this.cancelFriendRequest,
-  }) : super(key: key);
+  });
 
   @override
   State<UserTile> createState() => _UserTileState();
 }
 
-void navToChatroom(BuildContext context, String roomId, String userName) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-        builder: (context) => ChatRoomScreen(
-              roomId: roomId,
-              userName: userName,
-            )),
-  );
-}
-
 class _UserTileState extends State<UserTile> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => navToChatroom(context, widget.roomId, widget.userName),
-      child: Card(
-        child: ListTile(
+    return Card(
+      child: ListTile(
           leading: const CircleAvatar(child: Icon((Icons.person))),
           title: Text(widget.userName, style: const TextStyle(fontSize: 14)),
-          trailing: widget.requestSend
-              ? IconButton(
-                  icon: const Icon(Icons.person_remove_outlined),
-                  onPressed: widget.cancelFriendRequest,
-                )
-              : IconButton(
-                  icon: const Icon(Icons.person_add_alt_outlined),
-                  onPressed: widget.sendFriendRequest,
-                ),
-        ),
-      ),
+          trailing: widget.isFriend
+              ? const Text('Friends')
+              : widget.requestSend
+                  ? IconButton(
+                      icon: const Icon(Icons.person_remove_outlined),
+                      onPressed: widget.cancelFriendRequest,
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.person_add_alt_outlined),
+                      onPressed: widget.sendFriendRequest,
+                    )),
     );
   }
 }
