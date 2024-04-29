@@ -1,4 +1,4 @@
-import 'package:fitapp/data/users/friend_request.dart';
+// import 'package:fitapp/data/users/friend_request.dart';
 
 class AppUser {
   final String uid;
@@ -32,13 +32,13 @@ class AppUser {
         'get_chat': chatRoom,
       };
 
-  List<Map<String, dynamic>> convertRequests() {
-    List<Map<String, dynamic>> converted = [];
-    for (FriendRequest req in fRequests) {
-      converted.add(req.toMap());
-    }
-    return converted;
-  }
+  // List<Map<String, dynamic>> convertRequests() {
+  //   List<Map<String, dynamic>> converted = [];
+  //   for (FriendRequest req in fRequests) {
+  //     converted.add(req.toMap());
+  //   }
+  //   return converted;
+  // }
 
   factory AppUser.fromMap(Map<String, dynamic> data) => AppUser(
         uid: data['uid'] ?? '',
