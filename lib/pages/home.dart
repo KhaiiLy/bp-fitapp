@@ -30,6 +30,8 @@ class _HomeProvidersState extends State<HomeProviders> {
               lname: '',
               email: '',
               workouts: [],
+              sharedWorkouts: [],
+              workoutReqs: [],
               friends: [],
               fRequests: [],
               chatRoom: {}),
@@ -39,7 +41,7 @@ class _HomeProvidersState extends State<HomeProviders> {
             // ignore: prefer_const_literals_to_create_immutables
             initialData: []),
         StreamProvider<List<Workout>>.value(
-          value: FirestoreDatabase().getWorkouts(currentUserId),
+          value: FirestoreDatabase().getWorkouts(currentUserId, ''),
           // ignore: prefer_const_literals_to_create_immutables
           initialData: [],
         ),
@@ -58,7 +60,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   // BOTTOM NAVIGATION BAR
-  int _currentIndex = 1;
+  int _currentIndex = 0;
   void _selectScreen(int index) {
     setState(() {
       _currentIndex = index;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fitapp/services/database/local_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +11,7 @@ class SetTile extends StatefulWidget {
   String? set;
   String? weight;
   String? reps;
-  bool? isCompleted = false;
+  bool isCompleted;
 
   SetTile({
     super.key,
@@ -19,7 +21,7 @@ class SetTile extends StatefulWidget {
     this.set,
     this.weight,
     this.reps,
-    this.isCompleted,
+    required this.isCompleted,
   });
 
   @override
@@ -30,20 +32,20 @@ class _SetTileState extends State<SetTile> {
   TextEditingController setCtrl = TextEditingController();
   TextEditingController weightCtrl = TextEditingController();
   TextEditingController repsCtrl = TextEditingController();
+  Timer? _debounce;
+  final Duration _duration = const Duration(milliseconds: 200);
 
-  bool setCompleted = false;
-
-  FocusNode weightNode = FocusNode();
-  FocusNode repsNode = FocusNode();
+  late bool setCompleted;
 
   @override
   void initState() {
     super.initState();
-
+    setCompleted = widget.isCompleted;
     setControls();
 
-    weightNode.addListener(() {
-      if (!weightNode.hasFocus) {
+    weightCtrl.addListener(() {
+      if (_debounce?.isActive ?? false) _debounce?.cancel();
+      _debounce = Timer(_duration, () {
         int setIdx = int.parse(setCtrl.text) - 1;
         LocalPreferences.updateExercise(
           widget.wid,
@@ -53,11 +55,12 @@ class _SetTileState extends State<SetTile> {
           'weight',
           weightCtrl.text,
         );
-      }
+      });
     });
 
-    repsNode.addListener(() {
-      if (!repsNode.hasFocus) {
+    repsCtrl.addListener(() {
+      if (_debounce?.isActive ?? false) _debounce?.cancel();
+      _debounce = Timer(_duration, () {
         int setIdx = int.parse(setCtrl.text) - 1;
         LocalPreferences.updateExercise(
           widget.wid,
@@ -67,7 +70,7 @@ class _SetTileState extends State<SetTile> {
           'reps',
           repsCtrl.text,
         );
-      }
+      });
     });
   }
 
@@ -95,18 +98,24 @@ class _SetTileState extends State<SetTile> {
     }
   }
 
+  void exerciseSetState(bool completedVal) {
+    int setIdx = int.parse(setCtrl.text) - 1;
+    LocalPreferences.updateExercise(
+      widget.wid,
+      widget.eid,
+      widget.exIdx,
+      setIdx,
+      'completed',
+      completedVal,
+    );
+  }
+
   @override
   void dispose() {
     setCtrl.dispose();
     weightCtrl.dispose();
     repsCtrl.dispose();
 
-    weightNode.removeListener(() {
-      print("weightNode lost focus");
-    });
-    repsNode.removeListener(() {
-      print("repsNode lost focus");
-    });
     super.dispose();
   }
 
@@ -119,6 +128,7 @@ class _SetTileState extends State<SetTile> {
           Expanded(
             flex: 1,
             child: TextField(
+              enabled: false,
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 filled: true,
@@ -138,7 +148,7 @@ class _SetTileState extends State<SetTile> {
           Expanded(
             flex: 2,
             child: TextField(
-              focusNode: weightNode,
+              keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 filled: true,
@@ -157,7 +167,7 @@ class _SetTileState extends State<SetTile> {
           Expanded(
             flex: 2,
             child: TextField(
-              focusNode: repsNode,
+              keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 filled: true,
@@ -184,19 +194,17 @@ class _SetTileState extends State<SetTile> {
                 border: Border.all(color: Colors.grey.shade300),
               ),
               child: IconButton(
-                padding: EdgeInsets.zero,
-                iconSize: 20,
-                icon: setCompleted
-                    ? const Icon(Icons.remove_rounded)
-                    : const Icon(Icons.check_rounded),
-                onPressed: () {
-                  setState(
-                    () {
+                  padding: EdgeInsets.zero,
+                  iconSize: 20,
+                  icon: setCompleted
+                      ? const Icon(Icons.check_rounded)
+                      : const Icon(Icons.remove_rounded),
+                  onPressed: () {
+                    setState(() {
                       setCompleted = !setCompleted;
-                    },
-                  );
-                },
-              ),
+                    });
+                    exerciseSetState(setCompleted);
+                  }),
             ),
           )
         ],

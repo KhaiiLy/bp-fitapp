@@ -11,12 +11,26 @@ class LocalPreferences {
   static const weightKey = 'weight';
   static const repsKey = 'reps';
   static var updatesKey = 'updates';
+  static var setState = 'set_state';
+  static var notes = 'notes';
 
   static Future init() async {
     prefs = await SharedPreferences.getInstance();
   }
 
 // ---------- GETTER ---------------------------
+
+// static Future saveSetState(String wid, ) async {
+//  await prefs.
+// }
+
+  static Future saveNotes(String wid, String noteContent) async {
+    await prefs.setString('${wid}_$notes', noteContent);
+  }
+
+  static String getNotes(String wid) {
+    return prefs.getString('${wid}_$notes') ?? '';
+  }
 
   static Future saveExercises(String wid, List<Exercise> exercises) async {
     String data =
@@ -34,7 +48,8 @@ class LocalPreferences {
     return data;
   }
 
-// ---------- DATA SETTERS ---------------------------
+// ---------- EXERCISE EDITS  ---------------------------
+
   static Future<void> prepareBatch(
       String wid, String eid, dynamic updatedItem) async {
     List updates = prefs
@@ -80,25 +95,26 @@ class LocalPreferences {
   }
 
   static Future updateExercise(String wid, String eid, int exIdx, int setIdx,
-      String parameter, String value) async {
+      String parameter, dynamic value) async {
     var exercises = jsonDecode(prefs.getString('${exerciseKey}_$wid') ?? '');
 
     // prefs.remove('${updatesKey}_$wid');
 
-    if (value != exercises[exIdx]['sets'][setIdx][parameter]) {
-      exercises[exIdx]['sets'][setIdx][parameter] = value;
-      var updatedItem = exercises[exIdx]['sets'];
-      prepareBatch(wid, eid, updatedItem);
+    // if (value != '') {
+    // print(value);
+    exercises[exIdx]['sets'][setIdx][parameter] = value;
+    var updatedItem = exercises[exIdx]['sets'];
+    prepareBatch(wid, eid, updatedItem);
 
-      List<Exercise> exerciseList = (exercises as List)
-          .map((item) => Exercise.fromSharedPrefs(item))
-          .toList();
-      String data =
-          (jsonEncode(exerciseList.map((ex) => ex.toSharedPrefs()).toList()));
-      await prefs.setString('${exerciseKey}_$wid', data);
-    } else {
-      await null;
-    }
+    List<Exercise> exerciseList = (exercises as List)
+        .map((item) => Exercise.fromSharedPrefs(item))
+        .toList();
+    String data =
+        (jsonEncode(exerciseList.map((ex) => ex.toSharedPrefs()).toList()));
+    await prefs.setString('${exerciseKey}_$wid', data);
+    // } else {
+    //   await null;
+    // }
   }
 
   static Future<void> clearUpdates(String wid) async {

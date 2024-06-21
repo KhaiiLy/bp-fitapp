@@ -19,20 +19,23 @@ class ChatBubble extends StatelessWidget {
         alignment: msgAlignment,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            vertical: 4,
+            horizontal: 10,
+            vertical: 10,
           ),
           child: Container(
             decoration: BoxDecoration(
               color: iamSender ? Colors.cyan.shade200 : Colors.grey.shade400,
-              borderRadius: BorderRadius.circular(35),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Padding(
-              // padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5),
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                message.content,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.w600),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 220),
+                child: Text(
+                  message.content,
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ),

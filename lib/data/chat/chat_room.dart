@@ -5,11 +5,13 @@ class ChatRoom {
   final String roomId;
   final List<Message> messages;
   final dynamic lastMessage;
+  final bool isOpen;
 
   ChatRoom({
     required this.roomId,
     required this.messages,
     required this.lastMessage,
+    required this.isOpen,
   });
 
   Map<String, dynamic> toMap() => {
@@ -31,5 +33,6 @@ class ChatRoom {
         roomId: data['room_id'] ?? '',
         messages: data['messages'] ?? [],
         lastMessage: data['last_message'] ?? Timestamp.now(),
+        isOpen: data['isOpen'] ?? false,
       );
 }

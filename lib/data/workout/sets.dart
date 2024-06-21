@@ -3,7 +3,7 @@ class Sets {
   final String weight;
   final bool completed;
 
-  Sets({required this.reps, required this.weight, this.completed = false});
+  Sets({required this.reps, required this.weight, required this.completed});
 
   Map<String, dynamic> toMap() => {
         'reps': reps,
