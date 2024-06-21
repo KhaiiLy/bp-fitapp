@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitapp/services/auth/auth_page.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ Future main() async {
   );
 
   await LocalPreferences.init();
+  await dotenv.load(fileName: ".env");
   runApp(const FitApp());
 }
 
