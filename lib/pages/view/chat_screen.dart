@@ -1,4 +1,4 @@
-import 'package:fitapp/pages/widgets/dialog_search.dart';
+import 'package:fitapp/pages/view/dialog_search.dart';
 import 'package:fitapp/pages/widgets/friend_tile.dart';
 import 'package:fitapp/pages/widgets/notification_badge.dart';
 import 'package:fitapp/services/database/firestore_database.dart';
@@ -18,7 +18,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late List<AppUser> others;
   late List<AppUser> friends;
-  late List<AppUser> users;
+  late List<AppUser> allUsers;
   late AppUser currentUser;
   List friendReqs = [];
   List<AppUser> foundFriends = [];
@@ -26,20 +26,24 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void didChangeDependencies() {
     currentUser = Provider.of<AppUser>(context);
-    users = Provider.of<List<AppUser>>(context);
+    try {
+      allUsers = Provider.of<List<AppUser>>(context);
+    } catch (e) {
+      print(e);
+    }
 
     setState(() {
       friendReqs = filterUsersByID(currentUser.fRequests);
       friends = filterUsersByID(currentUser.friends);
       foundFriends = friends;
-      users.removeWhere((item) => item.uid == currentUser.uid);
-      others = users;
+      allUsers.removeWhere((item) => item.uid == currentUser.uid);
+      others = allUsers;
     });
     super.didChangeDependencies();
   }
 
   List<AppUser> filterUsersByID(List<dynamic> requiredIds) {
-    return users.where((item) => requiredIds.contains(item.uid)).toList();
+    return allUsers.where((item) => requiredIds.contains(item.uid)).toList();
   }
 
   void _runFilter(String txtSearch) {
@@ -59,15 +63,14 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _searchWindow() {
+    var data = {"userTileType": "friend_request"};
     showDialog(
       context: context,
       builder: (_) {
-        return StreamProvider<List<AppUser>>.value(
-          value: FirestoreDatabase().users,
-          initialData: [],
-          child: DialogSearch(
-            currentUser: currentUser,
-          ),
+        return DialogSearch(
+          currentUser: currentUser,
+          userList: others,
+          data: data,
         );
       },
     );
@@ -93,50 +96,10 @@ class _ChatScreenState extends State<ChatScreen> {
               alignment: Alignment.center,
               child: Stack(
                 children: [
-                  PopupMenuButton(
-                    icon: const Icon(Icons.notifications_rounded, size: 32),
-                    offset: Offset(-4.0, appBarHeight - 2),
-                    itemBuilder: (context) {
-                      return friendReqs.map((user) {
-                        String fullName = "${user.name} ${user.lname}";
-                        return PopupMenuItem(
-                          child: ListTile(
-                            titleAlignment: ListTileTitleAlignment.center,
-                            title: Text(fullName),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: IconButton(
-                                    padding: const EdgeInsets.all(0),
-                                    alignment: Alignment.center,
-                                    iconSize: 28,
-                                    icon: const Icon(
-                                        Icons.check_circle_outline_outlined),
-                                    onPressed: () => FirestoreDatabase()
-                                        .acceptFriendReq(
-                                            currentUser.uid, user.uid),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: IconButton(
-                                    padding: const EdgeInsets.all(0),
-                                    alignment: Alignment.center,
-                                    iconSize: 28,
-                                    icon: const Icon(Icons.cancel_outlined),
-                                    onPressed: () {},
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList();
-                    },
+                  MyPopupMenu(
+                    friendReqs: friendReqs,
+                    currentUser: currentUser,
+                    appBarHeight: appBarHeight,
                   ),
                   friendReqs.isNotEmpty
                       ? NotificationBadge(numOfNot: friendReqs.length)
@@ -184,6 +147,82 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class MyPopupMenu extends StatefulWidget {
+  final List<dynamic> friendReqs;
+  final AppUser currentUser;
+  final double appBarHeight;
+  const MyPopupMenu(
+      {super.key,
+      required this.friendReqs,
+      required this.currentUser,
+      required this.appBarHeight});
+
+  @override
+  State<MyPopupMenu> createState() => _MyPopupMenuState();
+}
+
+class _MyPopupMenuState extends State<MyPopupMenu> {
+  late List<dynamic> requests;
+  late AppUser currentUser;
+  late double appBarHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    requests = widget.friendReqs;
+    currentUser = widget.currentUser;
+    appBarHeight = widget.appBarHeight;
+
+    return PopupMenuButton(
+      icon: const Icon(Icons.notifications_rounded, size: 32),
+      offset: Offset(-4.0, widget.appBarHeight - 2),
+      itemBuilder: (context) {
+        return requests.map((user) {
+          String fullName = "${user.name} ${user.lname}";
+          return PopupMenuItem(
+            child: ListTile(
+              titleAlignment: ListTileTitleAlignment.center,
+              title: Text(fullName),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: IconButton(
+                        padding: const EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        iconSize: 28,
+                        icon: const Icon(Icons.check_circle_outline_outlined),
+                        onPressed: () {
+                          FirestoreDatabase()
+                              .acceptFriendReq(currentUser.uid, user.uid);
+                          Navigator.pop(context);
+                        }),
+                  ),
+                  SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: IconButton(
+                        padding: const EdgeInsets.all(0),
+                        alignment: Alignment.center,
+                        iconSize: 28,
+                        icon: const Icon(Icons.cancel_outlined),
+                        onPressed: () {
+                          FirestoreDatabase()
+                              .declineFriendReq(currentUser.uid, user.uid);
+                          Navigator.pop(context);
+                        }),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList();
+      },
     );
   }
 }
