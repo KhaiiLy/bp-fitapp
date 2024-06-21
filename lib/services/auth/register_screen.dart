@@ -45,6 +45,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             lname: lNameCtrler.text,
             email: emailCtrler.text,
             workouts: [],
+            sharedWorkouts: [],
+            workoutReqs: [],
             friends: [],
             fRequests: [],
             chatRoom: {},
@@ -88,7 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const SizedBox(height: 50),
 
-              Image.asset('lib/images/pokeball.png', height: 120),
+              Image.asset('lib/images/flutter_logo.png', height: 120),
               const SizedBox(height: 15),
 
               const Text("Create an account",
