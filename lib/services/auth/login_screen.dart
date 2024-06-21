@@ -1,3 +1,4 @@
+import 'package:fitapp/services/auth/forgot_password.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -15,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // input controls
   final emailCtrler = TextEditingController();
   final passwdCtrler = TextEditingController();
+  final resetPasswordCtrl = TextEditingController();
 
   // loading circle
   bool _isLoading = false;
@@ -38,6 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  Future _passwordReset() async {
+    try {} on FirebaseAuthException catch (e) {
+      print(e);
+    }
+  }
+
   @override
   void dispose() {
     emailCtrler.dispose();
@@ -57,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 50),
 
-                Image.asset('lib/images/pokeball.png', height: 120),
+                Image.asset('lib/images/flutter_logo.png', height: 120),
                 const SizedBox(height: 35),
 
                 // USER INPUTS
@@ -72,10 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 10),
 
                 // FORGOT PASSWORD
-                Text(
-                  "Forgot Password?",
-                  style: TextStyle(color: Colors.grey.shade600),
-                ),
+                TextButton(
+                    child: Text(
+                      "Forgot Password?",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPassword(),
+                        ))),
                 const SizedBox(height: 25),
 
                 // LOGIN BUTTON
