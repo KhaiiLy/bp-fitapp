@@ -1,16 +1,11 @@
 # fitapp
 
-A new Flutter project.
+before running up
+install all dependencies with command
+: flutter pub get
 
-## Getting Started
+run android emulator
+: flutter emulators --launch android_emulator_name
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+then start app on emulator
+: flutter run
