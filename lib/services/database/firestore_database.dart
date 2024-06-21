@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitapp/data/chat/chat_room.dart';
 import 'package:fitapp/data/chat/message.dart';
 
 import 'package:fitapp/data/workout/exercise.dart';
 import 'package:fitapp/services/database/local_preferences.dart';
+import 'package:flutter/foundation.dart';
 import '../../data/workout/workout.dart';
 import '../../data/workout/sets.dart';
 import '../../data/users/app_user.dart';
@@ -15,6 +17,11 @@ class FirestoreDatabase {
   /*
     USERS
   */
+
+  // Future resetPassword() {
+
+  // }
+
   Future<void> addNewRegistered(AppUser appUser) async {
     try {
       await db.collection('users').doc(appUser.uid).set(appUser.toMap());
@@ -28,24 +35,29 @@ class FirestoreDatabase {
   */
 
   Future<void> sendMessage(
-      String roomID, String senderID, String content) async {
+      String roomID, String senderID, String content, String msgType) async {
     var timestamp = FieldValue.serverTimestamp();
     Message message = Message(
       senderId: senderID,
+      msgType: msgType,
       content: content,
       sentAt: timestamp,
     );
-    await db
-        .collection('chat_rooms')
-        .doc(roomID)
-        .collection('messages')
-        .add(message.toMap())
-        .then(
-          (value) => db
-              .collection('chat_rooms')
-              .doc(roomID)
-              .update({'last_message': timestamp}),
-        );
+    try {
+      await db
+          .collection('chat_rooms')
+          .doc(roomID)
+          .collection('messages')
+          .add(message.toMap())
+          .then(
+            (value) => db
+                .collection('chat_rooms')
+                .doc(roomID)
+                .update({'last_message': timestamp}),
+          );
+    } catch (e) {
+      debugPrint('Error creating message document in room: $roomID');
+    }
   }
 
   Stream<ChatRoom> getChatHistory(String roomId) {
@@ -88,9 +100,14 @@ class FirestoreDatabase {
 
 // get list of users
   Stream<List<AppUser>> get users {
-    var data = db.collection('users').snapshots().map(
-        (doc) => doc.docs.map((doc) => AppUser.fromMap(doc.data())).toList());
-    return data;
+    try {
+      var data = db.collection('users').snapshots().map(
+          (doc) => doc.docs.map((doc) => AppUser.fromMap(doc.data())).toList());
+      return data;
+    } catch (e) {
+      log('Error fetching users: $e');
+      return const Stream.empty();
+    }
   }
 
   Future<void> sendFriendRequest(String currentUid, String otherUid) async {
@@ -101,6 +118,16 @@ class FirestoreDatabase {
       });
     } on Exception catch (e) {
       print('Error adding id: $otherUid into f_requests list: $e');
+    }
+  }
+
+  Future<void> removeFriendRequest(String currentUid, String otherUid) async {
+    try {
+      await db.collection('users').doc(otherUid).update({
+        'received_fReq': FieldValue.arrayRemove([currentUid])
+      });
+    } on Exception catch (e) {
+      print('Error removing id: $otherUid from f_requests list: $e');
     }
   }
 
@@ -143,26 +170,104 @@ class FirestoreDatabase {
     }
   }
 
-  Future<void> removeFriendRequest(String currentUid, String otherUid) async {
+  Future<void> declineFriendReq(String currentUid, String reqSenderId) async {
     try {
-      await db.collection('users').doc(otherUid).update({
-        'received_fReq': FieldValue.arrayRemove([currentUid])
+      await db.collection('users').doc(currentUid).update({
+        'received_fReq': FieldValue.arrayRemove([reqSenderId]),
       });
-    } on Exception catch (e) {
-      print('Error removing id: $otherUid from f_requests list: $e');
+    } catch (e) {
+      print('Decline friend request error: $e');
     }
   }
 
+  Future<void> setVideoCallState(String roomId, bool isOpen) async {
+    await db.collection('chat_rooms').doc(roomId).update({'isOpen': isOpen});
+  }
   /* 
     WORKOUT SCREEN
     ../pages/widgets/set_tile.dart
     ../services/database/local_preferences.dart
   */
 
+// ----------- SHARE WORKOUTS BETWEEN USERS ------------------------
+  Future<void> acceptWorkout(String currentUid, String reqSenderId,
+      String workoutId, String senderName, String workoutName) async {
+    try {
+      await db.collection('users').doc(currentUid).update({
+        'workout_reqs.$workoutId': FieldValue.delete(),
+        'shared_workouts.$workoutId': {
+          'workoutName': workoutName,
+          'fromUid': reqSenderId,
+          'userName': senderName
+        },
+      });
+    } catch (e) {
+      log('Error accepting workout: $workoutId from user: $reqSenderId');
+    }
+  }
+
+  Future<void> shareWorkout(String currentUid, String receivingUid,
+      String workoutId, String senderName, String workoutName) async {
+    try {
+      await db.collection('users').doc(receivingUid).update({
+        'workout_reqs.$workoutId': {
+          'workoutName': workoutName,
+          'fromUid': currentUid,
+          'userName': senderName
+        }
+      });
+    } catch (e) {
+      log("Error sharing workout: $workoutId to user: $receivingUid");
+    }
+  }
+
+  Future<void> unshareWokrout(String receivingUid, String workoutId) async {
+    try {
+      await db
+          .collection('users')
+          .doc(receivingUid)
+          .update({'workout_reqs.$workoutId': FieldValue.delete()});
+    } catch (e) {
+      print("Error unsharing workout: $workoutId to user: $receivingUid");
+      log("Error unsharing workout: $workoutId to user: $receivingUid");
+    }
+  }
+
+  Stream<String> getWorkoutNotes(String wID) {
+    return db
+        .collection('workouts')
+        .doc(wID)
+        .snapshots()
+        .map((doc) => doc.data()!['notes']);
+  }
+
 // ---------- WORKOUT - DATA SETTERS ---------------------------
+  Future removeWorkout(String uid, String wid) async {
+    try {
+      await db.collection('users').doc(uid).update({
+        'workouts': FieldValue.arrayRemove([wid])
+      });
+      await db.collection('workouts').doc(wid).delete();
+    } catch (e) {
+      print("Error removind workout document: $e");
+    }
+  }
+
+  Future removeSharedWorkout(String uid, String wid) async {
+    try {
+      await db
+          .collection('users')
+          .doc(uid)
+          .update({'shared_workouts.$wid': FieldValue.delete()});
+    } catch (e) {
+      print('Error removing shared worktou: $e');
+    }
+  }
+
   Future addWorkout(String uid, String wName) async {
     Workout workout = Workout(
       name: wName,
+      notes: '',
       createdAt: FieldValue.serverTimestamp(),
     );
 
@@ -195,7 +300,7 @@ class FirestoreDatabase {
     }
   }
 
-  void updateSets(String wID) {
+  Future<void> updateSets(String wID) async {
     final batch = db.batch();
     List updates = LocalPreferences.getUpdates(wID);
     String eID;
@@ -210,9 +315,19 @@ class FirestoreDatabase {
           db.collection('workouts').doc(wID).collection('exercises').doc(eID);
       batch.update(docRef, {'sets': updatedSets});
     }
-    batch.commit();
+    await batch.commit();
     LocalPreferences.clearUpdates(wID);
     print('sets inside doc >> $wID _ updated');
+  }
+
+  Future<void> updateNotes(String wID) async {
+    String notes = LocalPreferences.getNotes(wID);
+    print("updateNotes function: $notes");
+    try {
+      await db.collection('workouts').doc(wID).update({'notes': notes});
+    } catch (e) {
+      log('Error updating notes: $e');
+    }
   }
 
   void addSet(String wID, String? eID) {
@@ -226,7 +341,7 @@ class FirestoreDatabase {
         .doc(eID)
         .get()
         .then((doc) => {
-              newSet = Sets(reps: "", weight: ""),
+              newSet = Sets(reps: "", weight: "", completed: false),
               exercise = Exercise.fromMap(doc.data() as Map<String, dynamic>),
               exercise.sets.add(newSet),
               db
@@ -269,7 +384,7 @@ class FirestoreDatabase {
   }
 
 // ---------- WORKOUT GETTERS ---------------------------
-  Stream<List<Workout>> getWorkouts(String uid) {
+  Stream<List<Workout>> getWorkouts(String uid, String? workoutType) {
     return db
         .collection('users')
         .doc(uid)
@@ -280,7 +395,12 @@ class FirestoreDatabase {
           print('User document by the id: $uid not found.');
           return [];
         }
-        List<dynamic> workoutIdsData = userSnap.data()?['workouts'];
+        List<dynamic> workoutIdsData;
+        if (workoutType == "shared_workouts") {
+          workoutIdsData = userSnap.data()?['shared_workouts'].keys.toList();
+        } else {
+          workoutIdsData = userSnap.data()?['workouts'];
+        }
 
         if (workoutIdsData.isEmpty) {
           print('Workout list of a user: $uid is empty.');
@@ -309,7 +429,7 @@ class FirestoreDatabase {
 
         return workouts;
       } catch (error) {
-        print('Error loading user workokuts: $error');
+        print('Error loading user workouts: $error');
         return [];
       }
     });
